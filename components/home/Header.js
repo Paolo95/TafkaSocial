@@ -1,6 +1,5 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
-import { TouchableWithoutFeedback } from 'react-native-web';
 
 const Header = () => {
   return (
@@ -66,7 +65,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     marginLeft: 10,
-    resizeMode: 'containe',
+    resizeMode: 'contain',
   },
   unreadBadge: {
     backgroundColor: '#FF3250',
