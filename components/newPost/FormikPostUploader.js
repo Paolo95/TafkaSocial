@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import * as Yup from 'yup'
 import { Formik } from 'formik'
 import { Divider } from 'react-native-elements'
+import validUrl from 'valid-url'
 
 const PLACEHOLDER_IMG = 'https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg'
 
@@ -13,14 +14,14 @@ const uploadPostSchema = Yup.object().shape({
 
 
 
-const FormikPostUploader = () => {
+const FormikPostUploader = ({ navigation }) => {
   
     const [thumbnailUrl, setThumbnailUrl] = useState(PLACEHOLDER_IMG);
   
     return (
         <Formik
             initialValues={{caption: '', imageUrl: ''}}
-            onSubmit={(values) => console.log(values)}
+            onSubmit={ () => navigation.goBack() }
             validationSchema={uploadPostSchema}
             validateOnMount={true}
             >
@@ -34,7 +35,10 @@ const FormikPostUploader = () => {
                 >
 
                     <Image 
-                        source={{ uri: thumbnailUrl ? thumbnailUrl : PLACEHOLDER_IMG }} 
+                        source={{ uri: validUrl.isUri(thumbnailUrl) 
+                            ? thumbnailUrl 
+                            : PLACEHOLDER_IMG,
+                        }} 
                         style={{ width: 100, height: 100}}/>     
 
                     <View style={{ flex: 1, marginLeft: 12 }}>                    
