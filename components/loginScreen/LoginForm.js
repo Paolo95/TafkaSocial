@@ -1,11 +1,11 @@
 import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import React from 'react'
 
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 import Validator from 'email-validator'
 
-const LoginForm = () => {
+const LoginForm = ({ navigation }) => {
     const LoginFormSchema = Yup.object().shape({
         email: Yup.string().email().required('An email is required'),
         password: Yup.string()
@@ -87,7 +87,7 @@ const LoginForm = () => {
 
                     <View style={styles.signupContainer}>
                         <Text>Don't have an account? </Text>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.push('SignupScreen')}>
                             <Text style={{ color: '#6BB0F5' }}>Sign Up</Text>
                         </TouchableOpacity>
                     </View>
