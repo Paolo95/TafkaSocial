@@ -1,9 +1,19 @@
 import { View, TextInput, Image, Text, Button } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import * as Yup from 'yup'
 import { Formik } from 'formik'
 import { Divider } from 'react-native-elements'
 import validUrl from 'valid-url'
+import { getAuth } from "firebase/auth";
+import { FIREBASE_DB } from '../../firebase'
+import { collection, 
+         onSnapshot,
+         where, 
+         limit, 
+         query, 
+         doc, 
+         serverTimestamp, 
+         addDoc } from 'firebase/firestore'
 
 const PLACEHOLDER_IMG = 'https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg'
 
@@ -12,16 +22,71 @@ const uploadPostSchema = Yup.object().shape({
     caption: Yup.string().max(2200, 'Caption has reached the character limit.')
 })
 
-
-
 const FormikPostUploader = ({ navigation }) => {
   
     const [thumbnailUrl, setThumbnailUrl] = useState(PLACEHOLDER_IMG);
-  
+    const [currentLoggedInUser, setCurrentLoggedInUser] = useState(null);
+
+    const getUsername = () => {
+
+        const auth = getAuth();
+        const user = auth.currentUser;
+
+        const q = query(
+            collection(FIREBASE_DB, 'users'),
+            where('owner_uid', '==', user.uid),
+            limit(1)
+        );
+      
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            snapshot.forEach((doc) => {
+                setCurrentLoggedInUser({
+                    username: doc.data().username,
+                    profilePicture: doc.data().profile_picture,
+                });
+            });
+        });
+
+        return unsubscribe;
+        
+    }
+
+    useEffect(() => {
+
+        getUsername();
+        
+    },[])
+
+    const uploadPostToFirebase = async (imageUrl, caption) => {
+
+        const auth = getAuth();
+        const user = auth.currentUser;
+
+        const userRef = doc(FIREBASE_DB, 'users', user.email);
+        const postsCollectionRef = collection(userRef, 'posts');
+
+        await addDoc(postsCollectionRef, {
+            imageUrl: imageUrl,
+            user: currentLoggedInUser.username,
+            profile_picture: currentLoggedInUser.profilePicture,
+            owner_uid: user.uid,
+            caption: caption,
+            createAt: serverTimestamp(),
+            likes: 0,
+            likes_by_users: [],
+            comments: [],
+        }).then(() => navigation.goBack());
+            
+         
+        
+    }
+
     return (
         <Formik
             initialValues={{caption: '', imageUrl: ''}}
-            onSubmit={ () => navigation.goBack() }
+            onSubmit={ values => {
+                uploadPostToFirebase(values.imageUrl, values.caption)
+            }}
             validationSchema={uploadPostSchema}
             validateOnMount={true}
             >
