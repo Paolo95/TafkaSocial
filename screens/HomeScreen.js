@@ -6,7 +6,7 @@ import Post from '../components/home/Post';
 import { POSTS } from '../data/posts';
 import BottomTabs, { bottomTabIcons } from '../components/home/BottomTabs';
 import { FIREBASE_DB } from '../firebase'
-import { collectionGroup, onSnapshot } from 'firebase/firestore'
+import { collectionGroup, onSnapshot, orderBy, query } from 'firebase/firestore'
 
 const HomeScreen = ({ navigation }) => {
   
@@ -15,9 +15,11 @@ const HomeScreen = ({ navigation }) => {
   useEffect(() => {
 
     const postsCollection = collectionGroup(FIREBASE_DB, 'posts');
+    const orderedQuery = query(postsCollection, orderBy('createAt', 'desc'));
 
-    onSnapshot(postsCollection, (querySnapshot) => {
-      setPosts(querySnapshot.docs.map((doc) => doc.data()));
+    onSnapshot(orderedQuery, (querySnapshot) => {
+      setPosts(querySnapshot.docs.map(post => (
+        {id: post.id, ...post.data() })));
     });
          
 }, []);

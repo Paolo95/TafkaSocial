@@ -70,9 +70,9 @@ const FormikPostUploader = ({ navigation }) => {
             user: currentLoggedInUser.username,
             profile_picture: currentLoggedInUser.profilePicture,
             owner_uid: user.uid,
+            owner_email: user.email,
             caption: caption,
             createAt: serverTimestamp(),
-            likes: 0,
             likes_by_users: [],
             comments: [],
         }).then(() => navigation.goBack());
